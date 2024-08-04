@@ -52,12 +52,6 @@ profile-*
 .vscode
 *code-workspace
 
-# clinic
-profile*
-*clinic*
-*flamegraph*
-
 build/
-.husky
 
 .env
