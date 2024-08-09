@@ -13,9 +13,9 @@ const startServer = async () => {
     const server = fastify({
       logger: pino({ level: 'info' }),
     })
-    server.register(require('@fastify/formbody'))
-    server.register(require('@fastify/cors'))
-    server.register(require('@fastify/helmet'))
+    server.register(import('@fastify/formbody'))
+    server.register(import('@fastify/cors'))
+    server.register(import('@fastify/helmet'))
 
     server.register(routes, { prefix: '/api' })
     server.setErrorHandler((error, request, reply) => {
@@ -42,7 +42,7 @@ const startServer = async () => {
 }
 
 for (const signal of ['unhandledRejection', 'uncaughtException']) {
-  process.on(signal, (error) => {
+  process.on(signal, (error: Error) => {
     console.error(`Close application on ${error.message}`)
     process.exit(1)
   })

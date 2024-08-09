@@ -2,14 +2,14 @@
   "name": "fastify-typescript",
   "version": "1.0.1",
   "description": "",
-  "main": "index.ts",
+  "main": "server.ts",
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "node build/index.js | pino-pretty --colorize",
-    "dev": "tsnd --no-notify --respawn --transpile-only  ./src/index.ts | pino-pretty --colorize",
+    "start": "node build/server.js | pino-pretty --colorize",
+    "dev": "tsnd --no-notify --respawn --transpile-only  ./src/server.ts | pino-pretty --colorize",
     "watch": "tsc -p ./tsconfig.json --watch",
-    "postinstall": "npx typesync && husky install",
+    "postinstall": "husky install",
     "prisma": "dotenv -e .env prisma",
     "db:gen": "prisma generate",
     "db:studio": "prisma studio",
@@ -17,9 +17,20 @@
     "db:push": "prisma db push",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
-    "prettier": "prettier src --check",
-    "prettier:fix": "prettier src --check --write --ignore-unknown",
+    "style": "prettier src --check",
+    "style:fix": "prettier src --check --write --ignore-unknown",
     "deadcode": "ts-prune | grep -v 'used in module' | sort"
+  },
+  "lint-staged": {
+    "*.ts|mts|tsx": [
+      "eslint --fix",
+      "prettier --write --ignore-unknown"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "repository": {
     "type": "git",
@@ -65,14 +76,15 @@
     "@types/pino": "7.0.4",
     "@types/prettier": "2.6.0",
     "@types/tap": "~15.0.11",
-    "eslint": "9.x",
+    "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.8.0",
     "husky": "7.0.4",
     "lint-staged": "12.3.8",
     "pino-pretty": "7.6.1",
-    "prettier": "2.6.2",
+    "prettier": "^3.3.3",
     "prisma": "5.17.0",
     "tap": "16.0.1",
     "ts-node-dev": "^1.1.8",
@@ -80,17 +92,8 @@
     "typescript": "5.5.4",
     "typescript-eslint": "^7.17.0"
   },
-  "lint-staged": {
-    "*.{js,ts,json,css,md}": [
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "npm run build"
-    }
+  "overrides": {
+    "eslint": "^9.8.0"
   },
   "volta": {
     "node": "20.14.0"
