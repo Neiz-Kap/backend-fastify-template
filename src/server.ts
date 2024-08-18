@@ -1,51 +1,39 @@
 import fastify from 'fastify'
-import pino from 'pino'
+import fastifyFileUpload from 'fastify-file-upload'
 
-import loadConfig from './config'
+import fastifyCors from '@fastify/cors'
+import fastifyEnv from '@fastify/env'
+import fastifyFormBody from '@fastify/formbody'
+import fastifyHelmet from '@fastify/helmet'
+import fastifyMultipart from '@fastify/multipart'
+
+import corsConfig from './config/cors.config'
+import envConfig, { EnvSchema } from './config/env.config'
+import formBodyConfig from './config/formBody.config'
+import helmetConfig from './config/helmet.config'
+import loggerConfig from './config/logger.config'
 import routes from './route'
 
-loadConfig()
-
-const port = +process.env.API_PORT || 5000
-
-const startServer = async () => {
-  try {
-    const server = fastify({
-      logger: pino({ level: 'info' }),
-    })
-    server.register(import('@fastify/formbody'))
-    server.register(import('@fastify/cors'))
-    server.register(import('@fastify/helmet'))
-
-    server.register(routes, { prefix: '/api' })
-    server.setErrorHandler((error, request, reply) => {
-      server.log.error(error)
-    })
-
-    server.get('/', async (_, reply) => {
-      return reply.status(200).send({ message: 'Working' })
-    })
-
-    for (const signal of ['SIGINT', 'SIGTERM']) {
-      process.on(signal, () =>
-        server.close().then((err) => {
-          console.warn(`Close application on ${signal}`)
-          process.exit(err ? 1 : 0)
-        }),
-      )
-    }
-
-    server.listen({ port })
-  } catch (error) {
-    console.error(error)
+declare module 'fastify' {
+  export interface FastifyInstance {
+    config: EnvSchema
   }
 }
 
-for (const signal of ['unhandledRejection', 'uncaughtException']) {
-  process.on(signal, (error: Error) => {
-    console.error(`Close application on ${error.message}`)
-    process.exit(1)
+export const createApp = async () => {
+  const server = fastify({
+    logger: loggerConfig,
   })
-}
+  await server.register(fastifyEnv, envConfig)
+  await server.register(fastifyFormBody, formBodyConfig)
+  await server.register(fastifyCors, corsConfig)
+  await server.register(fastifyHelmet, helmetConfig)
 
-startServer()
+  await server.get('/', async (_, reply) => {
+    return reply.status(200).send({ message: 'Working' })
+  })
+
+  await server.register(routes, { prefix: '/api' })
+
+  return server
+}
