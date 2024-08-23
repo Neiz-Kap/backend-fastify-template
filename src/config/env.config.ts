@@ -1,4 +1,5 @@
-import { FromSchema, type JSONSchema } from 'json-schema-to-ts'
+import { z } from 'zod'
+import { zodToJsonSchema } from 'zod-to-json-schema'
 
 import type { FastifyEnvOptions } from '@fastify/env'
 
@@ -11,40 +12,21 @@ export const awsConfig = {
 export const awsBucketName = process.env.AWS_BUCKET_NAME
 export const linkExpireTime = process.env.AWS_LINK_EXPIRE
 
-const schema = {
-  type: 'object',
-  required: ['DATABASE_URL', 'JWT_SECRET'],
-  properties: {
-    API_HOST: {
-      type: 'string',
-      default: '0.0.0.0',
-    },
-    API_PORT: {
-      type: 'number',
-      default: 3000,
-    },
-    DATABASE_URL: {
-      type: 'string',
-    },
-    LOG_LEVEL: {
-      type: 'string',
-      enum: ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'], //  "fatal" | "error" | "warn" | "info" | "debug" | "trace"
-      default: 'info',
-    },
-    JWT_SECRET: {
-      type: 'string',
-    },
-    NODE_ENV: {
-      type: 'string',
-    },
-  },
-} as const satisfies JSONSchema
+const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'testing']),
+  API_HOST: z.string().default('127.0.0.1'),
+  API_PORT: z.number().min(3000).max(8000).default(3000),
+  DATABASE_URL: z.string().min(10),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('debug'),
+  JWT_SECRET: z.string().min(1),
+  ENABLE_SWAGGER: z.boolean().default(false),
+})
 
-export type EnvSchema = FromSchema<typeof schema>
+export type EnvSchema = z.infer<typeof envSchema>
 
 const envConfig: FastifyEnvOptions = {
   confKey: 'config',
-  schema,
+  schema: zodToJsonSchema(envSchema),
   data: process.env,
   dotenv: true,
 }

@@ -1,17 +1,9 @@
-import S from 'fluent-json-schema'
+import { z } from 'zod'
 
-export const loginSchema = {
-    body: S.object()
-        .prop('email', S.string().required())
-        .prop('password', S.string().minLength(8).required()),
-    queryString: S.object(),
-    params: S.object(),
-    headers: S.object(),
-}
+export const loginSchemaBody = z.object({
+  username: z.string().max(32).describe('Some description for username'),
+  email: z.string().max(32).describe('Some description for email'),
+  password: z.string().max(32),
+})
 
-export const signupSchema = {
-    body: S.object(),
-    queryString: S.object(),
-    params: S.object(),
-    headers: S.object(),
-}
+export type ILoginBody = z.infer<typeof loginSchemaBody>
