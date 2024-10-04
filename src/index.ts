@@ -1,4 +1,4 @@
-import { gracefullyShutdown, unexpectedErrorHandler } from './helper/exit-handler'
+import { gracefullyShutdown, unexpectedErrorHandler } from './modules/common/helper/exit-handler'
 import { createApp } from './server'
 
 const initApp = async () => {

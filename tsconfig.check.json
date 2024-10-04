@@ -3,7 +3,6 @@
     /* Base options */
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "es2022",
     "allowJs": false,
     "resolveJsonModule": true,
     "moduleDetection": "force",
@@ -30,7 +29,7 @@
     "suppressExcessPropertyErrors": false,
     "suppressImplicitAnyIndexErrors": false,
     "noStrictGenericChecks": false,
-    "useUnknownInCatchVariables": true
+    "useUnknownInCatchVariables": false
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]

@@ -3,6 +3,8 @@ import { jsonSchemaTransform } from 'fastify-type-provider-zod'
 import { SwaggerOptions } from '@fastify/swagger'
 import { FastifySwaggerUiOptions } from '@fastify/swagger-ui'
 
+import { ModuleTag } from '@/modules/common/type'
+
 export const swaggerConfig = (host: string, port: number) => {
   const config = {
     openapi: {
@@ -19,9 +21,8 @@ export const swaggerConfig = (host: string, port: number) => {
         },
       ],
       tags: [
-        { name: 'user', description: 'User related end-points' },
-        { name: 'post', description: 'Post related end-points' },
-        { name: 'staff', description: 'Staff related end-points' },
+        { name: ModuleTag.USER, description: 'User related end-points' },
+        { name: ModuleTag.POST, description: 'Post related end-points' },
       ],
       components: {
         securitySchemes: {

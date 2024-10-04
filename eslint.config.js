@@ -19,8 +19,7 @@ export default tseslint.config({
   languageOptions: {
     parser: tseslint.parser,
     parserOptions: {
-      project: './tsconfig.dev.json',
-      tsconfigRootDir: __dirname,
+      project: './tsconfig.json',
     },
     globals: { ...globals.node, ...globals.es2025 },
     ecmaVersion: 'latest',

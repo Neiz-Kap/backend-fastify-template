@@ -1,12 +1,10 @@
 import fastify from 'fastify'
-import fastifyFileUpload from 'fastify-file-upload'
 import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { fastifyCors } from '@fastify/cors'
 import fastifyEnv from '@fastify/env'
 import fastifyFormBody from '@fastify/formbody'
 import fastifyHelmet from '@fastify/helmet'
-import fastifyMultipart from '@fastify/multipart'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUI from '@fastify/swagger-ui'
 
@@ -16,23 +14,28 @@ import formBodyConfig from './config/formBody.config'
 import helmetConfig from './config/helmet.config'
 import loggerConfig from './config/logger.config'
 import { swaggerConfig, swaggerUiConfig } from './config/swagger.config'
-import routes from './route'
+import routes from './modules/common/router'
 
 declare module 'fastify' {
   export interface FastifyInstance {
     config: EnvSchema
+    getEnvs(): EnvSchema
+  }
+
+  export interface FastifyRequest {
+    getEnvs(): EnvSchema
   }
 }
 
 export const createApp = async () => {
-  const server = fastify({ logger: loggerConfig }).withTypeProvider<ZodTypeProvider>()
+  const server = fastify({ logger: loggerConfig, disableRequestLogging: true }).withTypeProvider<ZodTypeProvider>()
   await server.register(fastifyEnv, envConfig)
   await server.register(fastifyFormBody, formBodyConfig)
   await server.register(fastifyCors, corsConfig)
   await server.register(fastifyHelmet, helmetConfig)
 
   if (server.config.ENABLE_SWAGGER) {
-    await server.register(fastifySwagger, swaggerConfig(server.config.API_HOST, server.config.API_PORT))
+    await server.register(fastifySwagger, swaggerConfig(server.config.API_HOST, server.getEnvs().API_PORT))
     await server.register(fastifySwaggerUI, swaggerUiConfig)
   }
 
@@ -43,7 +46,7 @@ export const createApp = async () => {
   /** All validation errors will be added a .statusCode property set to 400. This guarantees that the default error handler will set the status code of the response to 400 */
   server.setErrorHandler((error, request, reply) => {
     server.log.error(error, `This error has status code ${error.statusCode}`)
-    reply.status(error.statusCode).send({ ...error })
+    reply.status(error.statusCode || 500).send({ ...error })
   })
 
   server.get('/', async (_, reply) => {
@@ -55,6 +58,7 @@ export const createApp = async () => {
   })
 
   await server.register(routes, { prefix: '/api' })
-
   return server
 }
+
+export type App = Awaited<ReturnType<typeof createApp>>
