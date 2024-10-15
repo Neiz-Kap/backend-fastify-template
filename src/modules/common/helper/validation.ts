@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import { SortOrder } from '../type'
 
-export const dbId = z.string({ message: 'id is required' }).uuid()
+export const dbId = z.number({ message: 'id is required' })
 
 export const params = z.object({
   id: dbId,

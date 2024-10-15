@@ -24,12 +24,12 @@ model User {
 }
 
 model Staff {
- id Int @id default(autoincrement())
- firstName String?
- middleName String?
- lastName  String?
- description String
- avatarLink String
+  id          Int     @id @default(autoincrement())
+  firstName   String?
+  middleName  String?
+  lastName    String?
+  description String
+  avatarLink  String
 }
 
 model Post {
